@@ -3,9 +3,10 @@ import java.util.Scanner;
 
 public class Launcher {
 
+	static Boolean test = true;
+
 	public static void main(String[] args) {
 
-		Boolean test = true;
 
 		ArrayList<CreationTable> alct = CreationTable.getSample();
 

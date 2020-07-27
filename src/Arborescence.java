@@ -137,13 +137,14 @@ public class Arborescence {
 		corps += " \r\n" + //
 				"  \r\n" + //
 				"\r\n" + //
-				">🐙 Cette API a été auto générée via une application JAVA : [Repo GitHub](https://github.com/GPaddle/APIGenerator/) \r\n"+//
+				">🐙 Cette API a été auto générée via une application JAVA : [Repo GitHub](https://github.com/GPaddle/APIGenerator/) \r\n"
+				+ //
 				">🛶 A Propos : [kgdev.works](https://kgdev.works) \r\n" + //
 				"\r\n" + //
 				"Merci d'avoir utilisé cet utilitaire ✨\r\n";
 
 		createFile("README.md", corps);
-		
+
 		lineBreak();
 
 	}
@@ -298,10 +299,8 @@ public class Arborescence {
 					"use \\Psr\\Http\\Message\\ServerRequestInterface as Request;\r\n" + //
 					"use \\Psr\\Http\\Message\\ResponseInterface as Response;\r\n" + //
 					"\r\n" + //
-					"class Controler" + nomTable + "\r\n" + //
-					"{\r\n" + //
-					"	public function get" + nomTable + "(Request $rq, Response $rs, $args)\r\n" + //
-					"	{\r\n" + //
+					"class Controler" + nomTable + "{\r\n" + //
+					"	public function get" + nomTable + "(Request $rq, Response $rs, $args){\r\n" + //
 					"		$" + nomTable.toLowerCase() + " = " + nomTable + "::all();\r\n" + //
 					"\r\n" + //
 					"		$txt = \"{\\\"" + nomTable.toLowerCase() + "\\\":[\";\r\n" + //
@@ -316,17 +315,56 @@ public class Arborescence {
 					"\r\n" + //
 					"		return FormattageDatas::formatDatasToJSON($rs, $txt, 200);\r\n" + //
 					"\r\n" + //
+					"	}\r\n\r\n" + //
+
+					// --------------------------------------------------------------------
+
+					"	public function post" + nomTable + "(Request $rq, Response $rs, $args){\r\n" + //
+					"	//TODO : ajouter les vérifications des différentes variables (FILTER_SANITIZE_STRING, ...)\r\n"
+					+ //
+					"		$rs = $rs->withHeader('Content-Type', 'application/json');\r\n" + //
+					"		$rsp = array();\r\n" + //
+					"		$data = json_decode($rq->getBody(), true);\r\n" + //
+					"		$datas = array();\r\n" + //
+					"\r\n" + //
+					"		$rsp = [\r\n" + //
+					"			\"error\" => false,\r\n" + //
+					"			\"message\" => \"\"\r\n" + //
+					"		];\r\n" + //
+					"\r\n" + //
+					"\r\n" + //
+					"		try {\r\n" + //
+					"			$" + nomTable.toLowerCase() + " = new " + nomTable + "();\r\n" + //
+					"			foreach ($datas[\"event\"] as $key => $value) {\r\n" + //
+					"				$event[$key] = $value;\r\n" + //
+					"			}\r\n" + //
+					"			\r\n" + //
+					"			$rsp['message'] .= \"Données créées avec ID = \" . $" + nomTable.toLowerCase() + "->"
+					+ creationTable.getPrimaryKey() + ";\r\n" + //
+					"			$rs = $rs->withStatus(201);\r\n" + //
+					"			$" + nomTable.toLowerCase() + "->save();\r\n" + //
+					"		} catch (\\Throwable $th) {\r\n" + //
+					"			$rsp[\"error\"] = true;\r\n" + //
+					"			$rsp['message'] .= \"Problème lors de la création des données\";\r\n" + //
+					"			$rs = $rs->withStatus(400);\r\n" + //
+					"		}\r\n" + //
+					"\r\n" + //
+					"		$rs->getBody()->write(json_encode($rsp));\r\n" + //
+					"		return $rs;\r\n" + //
 					"	}\r\n" + //
+
+					// --------------------------------------------------------------------
+
 					"}\r\n" + //
 					"";
 
-			createFile("src\\controler\\" + nomTable + ".php", corps);
+			createFile("src\\controler\\Controler" + nomTable + ".php", corps);
 
 		}
 
 		String corpsFormat = "<?php\r\n" + //
 				"\r\n" + //
-				"namespace course\\controler;\r\n" + //
+				"namespace " + namespace + "\\controler;\r\n" + //
 				"\r\n" + //
 				"use \\Psr\\Http\\Message\\ServerRequestInterface as Request;\r\n" + //
 				"use \\Psr\\Http\\Message\\ResponseInterface as Response;\r\n" + //
@@ -366,7 +404,7 @@ public class Arborescence {
 
 		corps = "<?php\r\n" + //
 				"\r\n" + //
-				"namespace course\\conf;\r\n" + //
+				"namespace " + namespace + "\\conf;\r\n" + //
 				"\r\n" + //
 				"$conf = \r\n" + //
 				"[\r\n" + //
@@ -406,12 +444,14 @@ public class Arborescence {
 				"\r\n" + //
 				"💕 Merci d'avoir utilisé le générateur d'API !");
 
+		if (!Launcher.test) {
 			ouvertureDossier();
+		}
 	}
 
 	private void ouvertureDossier() {
 		Boolean lancementJAR = Launcher.class.getResource("Launcher.class").toString().contains(".jar");
-		String uriRepertoires="";
+		String uriRepertoires = "";
 		try {
 			uriRepertoires = new File(".").getCanonicalFile().toString();
 			if (lancementJAR) {
